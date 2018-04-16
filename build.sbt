@@ -2,9 +2,13 @@ name := "scorch-akka"
 
 version := "1.0"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.5"
 
+<<<<<<< HEAD
 lazy val akkaVersion = "2.5.12"
+=======
+lazy val akkaVersion = "2.5.11"
+>>>>>>> 8627056c73739ac86a29a50c836f8571ab906034
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
