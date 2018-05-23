@@ -13,6 +13,8 @@ libraryDependencies ++= Seq(
 
   "be.botkop" %% "numsca" % "0.1.4-SNAPSHOT",
 
+  "me.tongfei" % "jtorch-cpu" % "0.3.0-SNAPSHOT",
+
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
 

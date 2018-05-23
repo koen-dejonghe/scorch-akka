@@ -1,4 +1,4 @@
-package nn.imperatve
+package nn.imperative
 
 import botkop.{numsca => ns}
 import botkop.numsca.Tensor
