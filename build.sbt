@@ -6,6 +6,8 @@ scalaVersion := "2.12.5"
 
 lazy val akkaVersion = "2.5.12"
 
+resolvers += Resolver.mavenLocal
+
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
