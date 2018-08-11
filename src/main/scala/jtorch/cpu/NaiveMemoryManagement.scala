@@ -13,15 +13,16 @@ object NaiveMemoryManagement extends App with LazyLogging {
 
   logger.info("*** starting sequential **************************")
   sequential()
-  logger.info("*** starting parallel ****************************")
-  parallel()
+//  logger.info("*** starting parallel ****************************")
+//  parallel()
 
   def sequential(): Unit = {
     val t3 = MyTensor.zeros(100, 100) // this one will only get garbage collected at the end of the program
 
     for (i <- 1 to 100) {
       MyTensor.zeros(3000, 3000) // these will get GC'ed as soon as as System.gc() is called
-      Thread.sleep(1)
+      println(i)
+      Thread.sleep(1000)
     }
 
     logger.info("DONE")
@@ -92,6 +93,7 @@ object MyTensor extends LazyLogging {
 
   def memCheck(size: Long): Unit =
     if (hiMemMark.addAndGet(size) > threshold) {
+      logger.info("not calling gc")
       System.gc()
     }
 
@@ -113,6 +115,7 @@ object MyTensor extends LazyLogging {
   def makeTensor(d1: Long, d2: Long): MyTensor = {
     //val cPtr = THJNI.THFloatTensor_newWithSize2d(d1, d2)
     val cPtr = THJNI.THFloatTensor_new()
+
     val t = new SWIGTYPE_p_THFloatTensor(cPtr, false)
     val size = d1 * d2 * 4
     memCheck(size)
