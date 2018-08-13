@@ -8,10 +8,22 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.language.postfixOps
 
-object ActorImperative {
+object ActorImperative extends App {
 
   val system = ActorSystem("AskTestSystem")
   implicit val timeout: Timeout = Timeout(5 seconds)
+
+  val x = Variable(3)
+  val y = Variable(5)
+  val z = Variable(7)
+
+  val a = x * y * z
+  a.backward(1)
+
+  println(a)
+  println(x.g)
+  println(y.g)
+  println(z.g)
 
   case class Variable(value: Double, fn: Option[ActorRef] = None) {
     var g: Double = 0
@@ -28,10 +40,30 @@ object ActorImperative {
     }
   }
 
-  case class MultiplyFunction(v1: Variable, v2: Variable) extends Actor {
+  class VarActor(value: Var, fn: Option[ActorRef] = None)
+      extends Actor {
+
+    override def receive: Receive = run(value)
+
+    def run(v: Var): Receive = {
+      case bog @ Backward(og) =>
+        fn.foreach(f => f ! bog)
+        context.become(run(v.copy(g = v.g + og)))
+      case Result =>
+        sender() ! v
+    }
+  }
+
+  object VarActor {
+    def props(value: Var, fn: Option[ActorRef] = None) =
+      Props(new VarActor(value, fn))
+  }
+
+  class MultiplyFunction(v1: Variable, v2: Variable) extends Actor {
+    val result = Variable(v1.value * v2.value, Some(self))
+
     override def receive: Receive = {
       case Forward =>
-        val result = Variable(v1.value * v2.value, Some(self))
         sender() ! result
       case Backward(og) =>
         val dv1 = v2.value * og
@@ -42,10 +74,14 @@ object ActorImperative {
   }
 
   object MultiplyFunction {
-    def props(v1: Variable, v2: Variable): Props = Props(new MultiplyFunction(v1, v2))
+    def props(v1: Variable, v2: Variable): Props =
+      Props(new MultiplyFunction(v1, v2))
   }
 
-  case class Forward()
+  case object Forward
   case class Backward(og: Double)
+  case object Result
+
+  case class Var(d: Double, g: Double = 0)
 
 }
